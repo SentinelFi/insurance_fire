@@ -102,7 +102,7 @@ However, there is notable **volatility**:
 Thanks to our low and transparent overhead, we can better withstand higher-risk fire scenarios than traditional insurers. Ultimately, this is still **business**, not charity, but our structure allows us to manage risk where others fail.
 
 
-![alt text](image.png)
+![alt text](images/monte_carlo.png)
 
 ## How to Run the Monte Carlo Analysis
 
@@ -131,3 +131,5 @@ We have the analysis script (in Python) in /monte_carlo folder.
 ```   
 
 This will display a histogram of yield outcomes and print summary statistics (mean yield, 5th percentile, 95th percentile) to the console.
+
+![alt text](images/automation.png)
