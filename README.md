@@ -106,7 +106,7 @@ Thanks to our low and transparent overhead, we can better withstand higher-risk 
 
 ## How to Run the Monte Carlo Analysis
 
-## How to Run the Monte Carlo Analysis
+We have the analysis script (in Python) in /monte_carlo folder. 
 
 1. **Create and Activate a Virtual Environment**  
 ```bash
