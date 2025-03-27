@@ -81,4 +81,53 @@ Vaults are deployed and managed using two key contracts:
   - Handles maturity logic, liquidity constraints, and vault state transitions.
   - Ensures all logic is transparent and deterministic.
 
-When a claim condition is met (e.g., fire detected at the insured location), an **Oracle** sends real-world event data to the controller. If validated, the Soroban contract **automatically executes a payout** from the Hedge Vault to the claimant. Funds may be rebalanced between vaults according to predefined rules.
+When a claim condition is met (e.g., fire detected at the insured location), an **Oracle** sends real-world event data to the controller. If validated, the Soroban contract **automatically executes a payout** to the Hedge Vault for the insurance buyers. 
+
+## Is this sustainable?
+
+Some might ask: **“Why are traditional insurers not sustainable in high-fire-risk areas, while we are?”** Traditional carriers often have **high overhead costs** and rely on **middlemen**, making it unprofitable to operate where fire probabilities are elevated. Our **blockchain-based** model, by contrast, is **open-source** and largely **automated**, drastically reducing administrative expenses and conflict resolution overhead.
+
+To illustrate, we ran a **Monte Carlo simulation** with:
+- **1,000 properties**  
+- **\$3,000 annual premium** each  
+- **\$150,000 claim payout**  
+- Fire **probability** drawn randomly between **0.3%** and **1.7%**  
+
+Through tens of thousands of single-year simulations, the **mean yield**—i.e., net profit divided by total premiums—averages around **40–50%**. This indicates reliable profitability despite annual fluctuations in fire probability.
+
+However, there is notable **volatility**:
+- About 5% of simulations yield as low as **5%**.
+- The top 5% exceed **80–85%**.
+
+Thanks to our low and transparent overhead, we can better withstand higher-risk fire scenarios than traditional insurers. Ultimately, this is still **business**, not charity, but our structure allows us to manage risk where others fail.
+
+
+![alt text](image.png)
+
+## How to Run the Monte Carlo Analysis
+
+## How to Run the Monte Carlo Analysis
+
+1. **Create and Activate a Virtual Environment**  
+```bash
+   python -m venv venv  
+   source venv/bin/activate  
+   (On Windows: venv\Scripts\activate)
+```   
+
+2. **Install Dependencies**  
+```
+   pip install numpy matplotlib
+```   
+
+3. **Navigate to the monte_carlo Folder** 
+```
+   cd monte_carlo
+```   
+
+4. **Run the Program**  
+```
+   python analysis.py  
+```   
+
+This will display a histogram of yield outcomes and print summary statistics (mean yield, 5th percentile, 95th percentile) to the console.
