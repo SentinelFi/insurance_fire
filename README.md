@@ -33,23 +33,7 @@ We're applying for the **BUIDL award** with our flight insurance product, where 
 
 We’re also inviting other builders to build on top of our framework and disrupt the rest of the insurance industry.
 
-## Our Architecture
-
-## 🧠 The Insurance Framework
-
-Our architecture is built around a **modular vault system** inspired by EVM's ERC-4626 and tailored for Soroban. Here's how it works:
-
-![alt text](images/architecture.png)
-
-- **Market Factory Contract**: Allows market makers to deploy a new pair of Hedge and Risk Vaults for each insurance market (e.g. wildfire, flight delay).
-- **Hedge Vault**: Accepts deposits from users seeking protection (hedge buyers). They receive payouts if the defined risk event occurs.
-- **Risk Vault**: Accepts deposits from users willing to take on the risk in exchange for potential yield (risk buyers).
-- **Controller**: Manages interactions between the vaults and handles capital movement based on oracle input, liquidity status, and maturity rules.
-- **Oracle**: Feeds real-world event data (e.g., wildfire occurrence, flight delays) to the controller to trigger automated payouts.
-
-> 📦 This setup allows for the creation of scalable, transparent insurance markets across any risk vertical—*as long as reliable oracle data exists*.
-
-## 🔥 Fire Insurance MVP — Powered by Oracles, TEE, and Soroban
+## 🔥 Fire Insurance Architecture — ZkTLS and TEE Oracles
 
 To showcase the flexibility of our decentralized insurance framework, we built a wildfire insurance MVP that pays out homeowners automatically when their property is detected to be within a wildfire zone.
 
@@ -69,12 +53,32 @@ To showcase the flexibility of our decentralized insurance framework, we built a
 - The script determines if the property is within or near an active fire zone.
 - This computation happens inside a TEE to ensure trust and prevent tampering.
 
-### 📜 Soroban Smart Contracts
-
-- If a fire is detected near the insured property, the TEE sends a signal to the **Soroban smart contract**, which then **automatically triggers a payout** to the homeowner.
-- The smart contract manages two vaults:
-  - **Hedge Vault** – Receives premiums from homeowners.
-  - **Risk Vault** – Funded by **counterparty investors** who earn yield by taking on risk.
-- All payouts and fund movements between vaults are governed by predefined, transparent logic.
-
 This MVP is a real-world example of how our framework supports **on-chain parametric insurance**—powered by trusted oracles, automated execution, and secure data validation. 
+
+> 📦 This system enables the creation of scalable, transparent, and automated insurance products across multiple verticals—*as long as reliable oracle data is available*.
+
+## 🧠 Soroban Smart Contracts - The Insurance Framework
+
+Our insurance framework is built around a **modular vault system**, inspired by the **ERC-4626 tokenized vault standard** and tailored for **Soroban smart contracts**.
+
+![Vault Architecture](images/architecture.png)
+
+At the core, each insurance market (e.g., wildfire, flight delay) is powered by two vaults:
+
+- **Hedge Vault** – Receives premiums from users seeking protection (hedge buyers). They are eligible for payouts when a covered event occurs.
+- **Risk Vault** – Funded by counterparty investors (risk buyers) who take on the event risk in exchange for yield.
+
+Vaults are deployed and managed using two key contracts:
+
+- **Market Factory Contract**
+  - Deploys new pairs of Hedge and Risk Vaults for each insurance market.
+  - Enables permissionless creation of custom insurance markets (e.g., wildfire, flood, flight delay).
+  - Links each market to its associated controller and oracle feed.
+
+- **Controller Contract**
+  - Manages the flow of capital between Hedge and Risk Vaults.
+  - Triggers payouts based on verified claim events from oracles.
+  - Handles maturity logic, liquidity constraints, and vault state transitions.
+  - Ensures all logic is transparent and deterministic.
+
+When a claim condition is met (e.g., fire detected at the insured location), an **Oracle** sends real-world event data to the controller. If validated, the Soroban contract **automatically executes a payout** from the Hedge Vault to the claimant. Funds may be rebalanced between vaults according to predefined rules.
