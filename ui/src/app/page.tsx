@@ -1,3 +1,5 @@
+import Landing from "@/components/Landing";
+
 export default function Home() {
-  return <div>HELLO</div>;
+  return <Landing />;
 }
