@@ -308,7 +308,7 @@ export default function Insurance() {
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="font-medium mb-1">Smart Contract</h3>
-                  <a
+                  <Link
                     href={`https://stellar.expert/explorer/public/contract/${contractAddress}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -316,7 +316,7 @@ export default function Insurance() {
                   >
                     <span>{contractAddress}</span>
                     <ExternalLink size={14} className="text-gray-500" />
-                  </a>
+                  </Link>
                 </div>
                 <div>
                   <h3 className="font-medium mb-1">Oracle Provider</h3>

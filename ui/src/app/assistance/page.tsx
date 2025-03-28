@@ -31,6 +31,7 @@ export default function Assistance() {
     console.log("Pressed submit contact form");
     alert("Demo!");
   };
+
   return (
     <main className="flex-1 pt-24">
       <div className="container mx-auto px-4 py-12">
@@ -91,7 +92,17 @@ export default function Assistance() {
               </Accordion>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() =>
+                  window.open(
+                    "https://www.ready.gov/home-fires",
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+              >
                 Learn More
               </Button>
             </CardFooter>
@@ -123,7 +134,17 @@ export default function Assistance() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() =>
+                  window.open(
+                    "https://www.ready.gov/kit",
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+              >
                 Read More
               </Button>
             </CardFooter>
@@ -153,7 +174,17 @@ export default function Assistance() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() =>
+                  window.open(
+                    "https://www.ready.gov/evacuation",
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+              >
                 Plan Now
               </Button>
             </CardFooter>
@@ -226,7 +257,7 @@ export default function Assistance() {
         </div>
 
         <div className="mt-16 text-center">
-          <h3 className="text-2xl font-semibold mb-4">
+          <h3 className="text-2xl font-semibold mb-4" id="faq">
             Frequently Asked Questions
           </h3>
           <div className="max-w-3xl mx-auto grid gap-6">

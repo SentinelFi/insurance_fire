@@ -314,14 +314,14 @@ export default function Counterparty() {
                 </div>
                 <div>
                   <h3 className="font-medium mb-1">Smart Contract Address</h3>
-                  <a
+                  <Link
                     href={`https://stellar.expert/explorer/public/contract/${contractAddress}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs bg-gray-100 p-2 rounded block break-all hover:bg-gray-200 transition-colors"
                   >
                     {contractAddress}
-                  </a>
+                  </Link>
                 </div>
                 <div className="bg-gray-100 p-3 rounded-lg">
                   <h3 className="font-medium mb-1">Risk vs Reward</h3>

@@ -22,27 +22,27 @@ export default function Footer() {
               blockchain with transparent, automated claims processing.
             </p>
             <div className="flex space-x-4 text-muted-foreground">
-              <a
+              <Link
                 target="_blank"
                 href="https://x.com/"
                 className="hover:text-flame-500 transition-colors"
               >
                 <Twitter className="h-5 w-5" />
-              </a>
-              <a
+              </Link>
+              <Link
                 target="_blank"
                 href="https://github.com/"
                 className="hover:text-flame-500 transition-colors"
               >
                 <Github className="h-5 w-5" />
-              </a>
-              <a
+              </Link>
+              <Link
                 target="_blank"
                 href="https://www.youtube.com/"
                 className="hover:text-flame-500 transition-colors"
               >
                 <Youtube className="h-5 w-5" />
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -66,36 +66,39 @@ export default function Footer() {
             <h3 className="font-medium text-base mb-4">Resources</h3>
             <ul className="space-y-2">
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="https://github.com/SentinelFi/insurance_fire"
+                  target="_blank"
                   className="text-sm text-muted-foreground hover:text-flame-500 transition-colors"
                 >
                   Documentation
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="https://www.iii.org/fact-statistic/facts-statistics-wildfires"
+                  target="_blank"
                   className="text-sm text-muted-foreground hover:text-flame-500 transition-colors"
                 >
-                  Risk Assessment Guide
-                </a>
+                  Risk Assessment
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="https://stellar.org/soroban"
+                  target="_blank"
                   className="text-sm text-muted-foreground hover:text-flame-500 transition-colors"
                 >
                   Stellar Soroban
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/assistance/#faq"
                   className="text-sm text-muted-foreground hover:text-flame-500 transition-colors"
                 >
                   FAQs
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
