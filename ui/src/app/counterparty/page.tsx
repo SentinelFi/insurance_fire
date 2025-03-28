@@ -23,7 +23,7 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
 import Fireworks from "@/components/Fireworks";
 import Link from "next/link";
-import { counterpartyAreas, coverageAreas, insuranceEpochs } from "@/lib/data";
+import { counterpartyData, coverageAreas, insuranceEpochs } from "@/lib/data";
 
 export default function Counterparty() {
   const [epoch, setEpoch] = useState("");
@@ -245,7 +245,7 @@ export default function Counterparty() {
               <CardContent>
                 {walletConnected ? (
                   <div className="space-y-4">
-                    {counterpartyAreas.map((policy) => (
+                    {counterpartyData.map((policy) => (
                       <div
                         key={policy.id}
                         className={`border rounded-lg p-4 hover:bg-orange-50 dark:hover:bg-brown-600 dark:hover:text-black transition duration-200 ${
