@@ -92,7 +92,7 @@ const Landing = () => {
                   className="border-flame-500 text-flame-500 hover:bg-flame-50 w-full sm:w-auto"
                 >
                   <Link
-                    href="/coverage"
+                    href="/counterparty"
                     className="flex items-center justify-center"
                   >
                     Provide Coverage
@@ -224,7 +224,7 @@ const Landing = () => {
               What Our Users Say
             </h2>
             <p className="text-muted-foreground">
-              Join thousands of satisfied users who trust SafeHarbor for their
+              Join thousands of satisfied users who trust FireBastion for their
               insurance needs.
             </p>
           </div>

@@ -63,7 +63,7 @@ export const testimonials = [
     name: "Michael Chen",
     location: "Seattle, WA",
     quote:
-      "As someone who values innovation, I appreciate how SafeHarbor has revolutionized insurance with blockchain technology.",
+      "As someone who values innovation, I appreciate how this has revolutionized insurance with blockchain technology.",
   },
 ];
 
@@ -72,4 +72,11 @@ export const stats = [
   { value: "3,500+", label: "Properties Protected" },
   { value: "99.8%", label: "Claims Fulfilled" },
   { value: "<24hrs", label: "Average Claim Time" },
+];
+
+export const navLinks = [
+  { title: "Home", path: "/" },
+  { title: "Insurance", path: "/insurance" },
+  { title: "Counterparty", path: "/counterparty" },
+  { title: "Assistance", path: "/assistance" },
 ];
