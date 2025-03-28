@@ -80,3 +80,26 @@ export const navLinks = [
   { title: "Counterparty", path: "/counterparty" },
   { title: "Assistance", path: "/assistance" },
 ];
+
+export const faqs = [
+  {
+    question: "How quickly are claims processed?",
+    answer:
+      "Our smart contract processes claims automatically as fast as possible with the verification through our oracle solution.",
+  },
+  {
+    question: "What information do I need to file a claim?",
+    answer:
+      "You'll need to connect your wallet, and if eligible, you will be able to claim the payout.",
+  },
+  {
+    question: "Can I increase my coverage amount after purchasing a policy?",
+    answer:
+      "Yes, you can modify your coverage by updating your policy through the page. New terms will apply immediately.",
+  },
+  {
+    question: "How are maximum amounts calculated?",
+    answer:
+      "Maximum amounts are calculated based on location risk assessment and coverage amount.",
+  },
+];

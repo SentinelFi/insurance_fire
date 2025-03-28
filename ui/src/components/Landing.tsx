@@ -93,7 +93,7 @@ const Landing = () => {
                 >
                   <Link
                     href="/counterparty"
-                    className="flex items-center justify-center"
+                    className="flex items-center justify-center dark:hover:bg-gray-700"
                   >
                     Provide Coverage
                   </Link>

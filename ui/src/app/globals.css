@@ -190,13 +190,13 @@
 /* @import url('https://rsms.me/inter/inter.css'); */
 
 /* Add CalSans font */
-@font-face {
+/* @font-face {
   font-family: 'CalSans';
   src: url('/fonts/CalSans-SemiBold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
-}
+} */
 
 /* New keyframes for micro-interactions */
 @keyframes float {
