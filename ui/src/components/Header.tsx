@@ -14,12 +14,14 @@ import {
   requestAccess,
 } from "@stellar/freighter-api";
 import { toast } from "@/components/ui/use-toast";
+import { useWallet } from "../context/wallet-context";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+
+  const { walletAddress, setWalletAddress } = useWallet();
 
   const pathname = usePathname();
 
@@ -84,6 +86,7 @@ export default function Header() {
   const handleConnectWallet = async () => {
     try {
       if (walletAddress) {
+        // Disconnect if connected
         setWalletAddress(null);
         return;
       }

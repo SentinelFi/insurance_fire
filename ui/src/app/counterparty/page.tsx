@@ -24,23 +24,17 @@ import { toast } from "@/components/ui/use-toast";
 import Fireworks from "@/components/Fireworks";
 import Link from "next/link";
 import { counterpartyData, coverageAreas, insuranceEpochs } from "@/lib/data";
+import { useWallet } from "../../context/wallet-context";
 
 export default function Counterparty() {
   const [epoch, setEpoch] = useState("");
   const [area, setArea] = useState("");
   const [coverageAmount, setCoverageAmount] = useState(1000);
-  const [walletConnected, setWalletConnected] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
 
-  const contractAddress = "GABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+  const { walletAddress } = useWallet();
 
-  const handleConnectWallet = () => {
-    setWalletConnected(true);
-    toast({
-      title: "Wallet Connected",
-      description: "Your Stellar wallet has been connected successfully.",
-    });
-  };
+  const contractAddress = "GABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -74,7 +68,7 @@ export default function Counterparty() {
               Provide Fire Damage Coverage
             </h1>
 
-            {!walletConnected ? (
+            {!walletAddress ? (
               <Card className="mb-8 animate-fade-in">
                 <CardHeader>
                   <CardTitle>Connect Your Wallet</CardTitle>
@@ -82,14 +76,7 @@ export default function Counterparty() {
                     Connect your Stellar wallet to provide coverage
                   </CardDescription>
                 </CardHeader>
-                <CardFooter>
-                  <Button
-                    onClick={handleConnectWallet}
-                    className="bg-orange-500 hover:bg-orange-600 dark:hover:bg-gray-600"
-                  >
-                    Connect Wallet
-                  </Button>
-                </CardFooter>
+                <CardFooter></CardFooter>
               </Card>
             ) : (
               <Card className="mb-8 animate-fade-in">
@@ -243,7 +230,7 @@ export default function Counterparty() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {walletConnected ? (
+                {walletAddress ? (
                   <div className="space-y-4">
                     {counterpartyData.map((policy) => (
                       <div

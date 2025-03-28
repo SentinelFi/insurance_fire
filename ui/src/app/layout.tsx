@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { WalletProvider } from "../context/wallet-context";
 
 export const metadata: Metadata = {
   title: "Fire Bastion",
@@ -20,11 +21,13 @@ export default function RootLayout({
       <body className={`antialiased`}>
         <Toaster />
         <Sonner />
-        <div className={`flex flex-col min-h-screen`}>
-          <Header />
-          {children}
-          <Footer />
-        </div>
+        <WalletProvider>
+          <div className={`flex flex-col min-h-screen`}>
+            <Header />
+            {children}
+            <Footer />
+          </div>
+        </WalletProvider>
       </body>
     </html>
   );
