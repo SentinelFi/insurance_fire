@@ -35,6 +35,8 @@ import { ExternalLink, MapPin, FileText, CheckCircle } from "lucide-react";
 import { coverageAreas, insuranceData, insuranceEpochs } from "@/lib/data";
 import Link from "next/link";
 import { useWallet } from "../../context/wallet-context";
+import QRCode from "react-qr-code";
+import { getProofs, start } from "@/actions/reclaim";
 
 export default function Insurance() {
   const [epoch, setEpoch] = useState("");
@@ -50,6 +52,10 @@ export default function Insurance() {
 
   const contractAddress = "GABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
+  const [requestUrl, setRequestUrl] = useState("");
+  const [proofs, setProofs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
     toast({
@@ -59,7 +65,7 @@ export default function Insurance() {
     });
   };
 
-  const handleStartPurchase = () => {
+  const handleStartPurchase = async () => {
     if (!epoch || !area) {
       toast({
         title: "Missing Information",
@@ -69,16 +75,52 @@ export default function Insurance() {
       });
       return;
     }
-
-    setVerificationStep(1);
-    setShowVerificationDialog(true);
+    try {
+      setLoading(true);
+      setProofs([]);
+      const requestUrl = await start();
+      console.log("Request URL:", requestUrl);
+      setRequestUrl(requestUrl);
+      setVerificationStep(1);
+      setShowVerificationDialog(true);
+    } catch (e) {
+      console.log("Reclaim error", e);
+      toast({
+        title: "Reclaim Verification Failed",
+        description: "Reclaim error! Check console for details.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleVerifyLocation = () => {
-    setVerificationStep(2);
-    setTimeout(() => {
+  const handleVerifyLocation = async () => {
+    try {
+      setLoading(true);
+      setProofs([]);
+      setVerificationStep(2);
+      const latestProofs = await getProofs();
+      console.log(latestProofs);
+      setProofs(latestProofs);
+      if (proofs && proofs.length > 0) {
+        console.log("Received proofs");
+      } else {
+        console.log("Unable to receive proofs");
+      }
       setVerificationStep(3);
-    }, 1500);
+    } catch (e) {
+      console.log("Proofs error", e);
+      setProofs([]);
+      toast({
+        title: "Proofs Verification Failed",
+        description: "Proofs error! Check console for details.",
+        variant: "destructive",
+      });
+      setVerificationStep(1);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleProceedToPolicy = () => {
@@ -226,9 +268,10 @@ export default function Insurance() {
                   <div className="pt-4">
                     <Button
                       onClick={handleStartPurchase}
+                      disabled={loading}
                       className="w-full bg-orange-500 hover:bg-orange-600"
                     >
-                      Start Purchase Process
+                      {loading ? "Loading..." : "Start Purchase Process"}
                     </Button>
                   </div>
                 </CardContent>
@@ -359,7 +402,7 @@ export default function Insurance() {
             <div className="space-y-4 py-4">
               {verificationStep === 1 && (
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 justify-center align-center">
                     <MapPin className="text-orange-500" size={24} />
                     <div>
                       <h3 className="font-medium">
@@ -371,10 +414,28 @@ export default function Insurance() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <Label htmlFor="address">Property Address</Label>
                     <Input id="address" placeholder="Enter your full address" />
-                  </div>
+                  </div> */}
+
+                  <h3 className="font-medium text-center">
+                    Please scan this QR code using your mobile phone, then
+                    follow the instructions on your device:
+                  </h3>
+
+                  {requestUrl && (
+                    <div className="flex flex-col justify-center align-center items-center">
+                      <QRCode value={requestUrl} />
+                      <Link
+                        className="text-blue-500 hover:underline text-center mt-4"
+                        href={requestUrl}
+                        target="_blank"
+                      >
+                        {requestUrl}
+                      </Link>
+                    </div>
+                  )}
 
                   <div className="text-center">
                     <Button
@@ -406,10 +467,17 @@ export default function Insurance() {
                     </div>
                   </div>
 
+                  {proofs && (
+                    <div className="ml-10">
+                      <h2>Verification Proofs:</h2>
+                      <pre>{JSON.stringify(proofs, null, 2)}</pre>
+                    </div>
+                  )}
+
                   <div className="bg-green-50 p-4 rounded-lg">
                     <p className="text-sm">
-                      Your property at{" "}
-                      <span className="font-medium">123 Example Street</span> is
+                      Property at{" "}
+                      <span className="font-medium">your address</span> is
                       eligible for fire damage insurance coverage.
                     </p>
                   </div>
