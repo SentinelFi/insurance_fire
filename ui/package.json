@@ -17,6 +17,8 @@
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-slider": "^1.2.3",
     "@radix-ui/react-toast": "^1.2.6",
+    "@stellar/freighter-api": "^4.1.0",
+    "@stellar/stellar-sdk": "^13.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.484.0",

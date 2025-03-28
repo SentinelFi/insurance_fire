@@ -7,14 +7,19 @@ import { useEffect, useState } from "react";
 import Logo from "./Logo";
 import { navLinks } from "@/lib/data";
 import { usePathname } from "next/navigation";
+import {
+  setAllowed,
+  getAddress,
+  isConnected,
+  requestAccess,
+} from "@stellar/freighter-api";
+import { toast } from "@/components/ui/use-toast";
 
 export default function Header() {
-  const walletAddress =
-    "GDMR3AQU7UUAF3AHIY5ECSFVX2R5GNZWDYZTPKZJH5HFGOUQEZKWELTA"; // Random for now
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   const pathname = usePathname();
 
@@ -37,6 +42,86 @@ export default function Header() {
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     document.documentElement.classList.toggle("dark");
+  };
+
+  const checkFreighter = async () => {
+    try {
+      const connected = await isConnected();
+      if (!connected) throw "Freigher connection returned empty response";
+      if (connected.error)
+        throw `Freighter connection error: ${connected.error}`;
+      if (connected.isConnected) {
+        console.log("Is wallet connected.");
+        const pubKey = await getAddress();
+        if (!pubKey)
+          throw "Freigher address returned empty response for public key";
+        if (pubKey.error) throw `Freighter address error: ${pubKey.error}`;
+        console.log("Freighter wallet address:", pubKey.address);
+        // setWalletAddress(pubKey.address); // If auto connect is needed
+      } else {
+        console.log("Freighter wallet extension is not enabled!");
+        toast({
+          title: "Freighter Wallet Extension",
+          description: "Freighter wallet extension is not enabled!",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.log("Error checking Freighter connection:", error);
+      toast({
+        title: "Freighter Wallet Extension",
+        description:
+          "Freighter wallet extension error. Please check the console for details.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    checkFreighter();
+  }, []);
+
+  const handleConnectWallet = async () => {
+    try {
+      if (walletAddress) {
+        setWalletAddress(null);
+        return;
+      }
+      await checkFreighter();
+      const isAllowed = await setAllowed();
+      if (!isAllowed) throw "Freigher returned empty allowed response";
+      if (isAllowed.error) throw `Freighter allowed error: ${isAllowed.error}`;
+      else
+        console.log(
+          "Successfully added the app to Freighter's Allow List " +
+            isAllowed.isAllowed
+        );
+      const pubKey = await getAddress();
+      if (!pubKey) throw "Freigher address returned empty response";
+      if (pubKey.error) throw `Freighter address error: ${pubKey.error}`;
+      console.log(pubKey);
+      setWalletAddress(pubKey.address);
+      if (!pubKey.address) {
+        const accessObj = await requestAccess();
+        if (accessObj.error) throw `Freighter access error: ${accessObj.error}`;
+        else {
+          console.log(accessObj);
+          const pubKey = await getAddress();
+          if (!pubKey.error) {
+            console.log("Get Address:", pubKey.address);
+            setWalletAddress(pubKey.address);
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Error connecting to Freighter:", error);
+      toast({
+        title: "Freighter Connection",
+        description:
+          "Error connecting wallet. Please check the console for details.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -88,15 +173,15 @@ export default function Header() {
             </Button>
 
             <Button
-              onClick={() => setIsWalletConnected(!isWalletConnected)}
-              variant={isWalletConnected ? "outline" : "default"}
+              onClick={handleConnectWallet}
+              variant={walletAddress ? "outline" : "default"}
               className={`transition-all duration-300 hover:scale-105 transform ${
-                isWalletConnected
+                walletAddress
                   ? "border-green-500 text-green-500 hover:bg-green-50 dark:hover:bg-gray-600"
                   : "bg-flame-500 hover:bg-flame-600 dark:hover:bg-gray-600 text-white"
               }`}
             >
-              {isWalletConnected ? (
+              {walletAddress ? (
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-green-500"></span>
                   <span className="text-xs font-medium">{`${walletAddress.substring(
@@ -156,10 +241,10 @@ export default function Header() {
               ))}
               <div className="pt-2 border-t border-border/50">
                 <Button
-                  onClick={() => setIsWalletConnected(!isWalletConnected)}
+                  onClick={handleConnectWallet}
                   className="w-full justify-between bg-flame-500 hover:bg-flame-600 text-white"
                 >
-                  {isWalletConnected ? (
+                  {walletAddress ? (
                     <div className="flex items-center justify-between w-full">
                       <span className="text-xs">{`${walletAddress.substring(
                         0,
