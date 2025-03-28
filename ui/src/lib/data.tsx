@@ -103,3 +103,52 @@ export const faqs = [
       "Maximum amounts are calculated based on location risk assessment and coverage amount.",
   },
 ];
+
+export const counterpartyAreas = [
+  {
+    id: 1,
+    area: "Los Angeles County",
+    epoch: "Jun 1 - Aug 31, 2025",
+    amount: "2500 USDC",
+    expires: "Aug 31, 2025",
+    isActive: true,
+  },
+  {
+    id: 2,
+    area: "New York Metropolitan",
+    epoch: "May 1 - May 31, 2024",
+    amount: "800 USDC",
+    expires: "May 31, 2024",
+    isActive: false,
+  },
+  {
+    id: 3,
+    area: "San Francisco Bay Area",
+    epoch: "Mar 1, 2025 - Mar 1, 2026",
+    amount: "5000 USDC",
+    expires: "Mar 1, 2026",
+    isActive: true,
+  },
+  {
+    id: 4,
+    area: "King County",
+    epoch: "Jan 1 - Mar 31, 2024",
+    amount: "1200 USDC",
+    expires: "Mar 31, 2024",
+    isActive: false,
+  },
+];
+
+export const coverageAreas = [
+  { id: "area1", name: "San Francisco Bay Area" },
+  { id: "area2", name: "Los Angeles County" },
+  { id: "area3", name: "New York Metropolitan" },
+  { id: "area4", name: "King County" },
+];
+
+export const insuranceEpochs = [
+  { id: "epoch1", name: "May 1, 2025 - May 31, 2025" },
+  { id: "epoch2", name: "June 1, 2025 - August 31, 2025" },
+  { id: "epoch3", name: "September 1, 2025 - February 28, 2025" },
+  { id: "epoch4", name: "March 1, 2026 - March 1, 2027" },
+];
