@@ -470,7 +470,8 @@ export default function Insurance() {
                   {proofs && (
                     <div className="ml-10">
                       <h2>Verification Proofs:</h2>
-                      <pre>{JSON.stringify(proofs, null, 2)}</pre>
+                      {/* <pre>{JSON.stringify(proofs, null, 2)}</pre> */}
+                      <p>Amazon address is valid!</p>
                     </div>
                   )}
 
