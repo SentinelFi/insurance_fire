@@ -4,6 +4,7 @@ import { converter } from "@/lib/converter";
 import {
   BASE_FEE,
   Contract,
+  Horizon,
   Networks,
   scValToNative,
   Transaction,
@@ -57,6 +58,23 @@ export async function prepareRedeemVault(
     operationName,
     params
   );
+}
+
+export async function fetchUsdcBalance(
+  publicKey: string
+): Promise<string | undefined> {
+  const server = new Horizon.Server("https://horizon-testnet.stellar.org");
+  const account = await server.accounts().accountId(publicKey).call();
+  const balances = account?.balances;
+  if (!balances) throw "Account balances not found";
+  console.log("Assets:", balances);
+  const usdc = balances.find(
+    (b: any) => b.asset_type !== "native" && b.asset_code === "USDC"
+  );
+  if (usdc) {
+    return usdc.balance;
+  }
+  return undefined;
 }
 
 export async function simulateGetAction(

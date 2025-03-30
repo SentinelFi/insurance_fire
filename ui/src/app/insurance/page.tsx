@@ -47,6 +47,7 @@ import { deposit, redeem, totalAssets, totalSharesOf } from "@/lib/actions";
 import { v4 as uuidv4 } from "uuid";
 import { isDateActive } from "@/lib/utils";
 import WildfireMap from "@/components/WildfireMap";
+import WalletBalance from "@/components/WalletBalance";
 
 export default function Insurance() {
   const [epoch, setEpoch] = useState("");
@@ -398,9 +399,12 @@ export default function Insurance() {
 
         <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8">
           <div className="md:w-2/3">
-            <h1 className="text-3xl font-bold mb-6">
-              Purchase Fire Damage Insurance
-            </h1>
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-3xl font-bold">
+                Purchase Fire Damage Insurance
+              </h1>
+              {walletAddress && <WalletBalance />}
+            </div>
 
             {!walletAddress ? (
               <Card className="mb-8 animate-fade-in">
