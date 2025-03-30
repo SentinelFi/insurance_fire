@@ -103,7 +103,7 @@ const Landing = () => {
                   </Button>
                 </div>
               </div>
-              <div className="md:w-1/2">
+              <div className="md:w-1/2 hidden md:block">
                 <div className="relative">
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-flame-500 to-flame-600 rounded-2xl blur opacity-40 dark:opacity-30 animate-pulse-subtle"></div>
                   <div className="glass-card border rounded-2xl shadow-xl overflow-hidden p-8 relative">
