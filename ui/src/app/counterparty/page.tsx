@@ -26,7 +26,7 @@ import Link from "next/link";
 import { counterpartyData, coverageAreas, insuranceEpochs } from "@/lib/data";
 import { useWallet } from "../../context/wallet-context";
 import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
-import { deposit } from "@/lib/actions";
+import { deposit, totalAssets } from "@/lib/actions";
 
 export default function Counterparty() {
   const [epoch, setEpoch] = useState("");
@@ -36,6 +36,7 @@ export default function Counterparty() {
   const [coverageAmount, setCoverageAmount] = useState(200);
   const [showFireworks, setShowFireworks] = useState(false);
   const [depositing, setDepositing] = useState(false);
+  const [premiumAssets, setPremiumAssets] = useState(0);
 
   const { walletAddress } = useWallet();
 
@@ -54,6 +55,33 @@ export default function Counterparty() {
       setContractConfig(null);
     }
   }, [epoch, area]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchData = async () => {
+      try {
+        if (isMounted) {
+          console.log("Fetching counterparty assets.");
+          if (contractConfig?.hedgeContactAddress && walletAddress) {
+            const total_assets = await totalAssets(
+              contractConfig?.hedgeContactAddress,
+              walletAddress
+            );
+            setPremiumAssets(Number(total_assets));
+            console.log("Counterparty assets:", total_assets);
+          } else {
+            setPremiumAssets(0);
+          }
+        }
+      } catch (e) {
+        console.log("Error loading total assets.", e);
+      }
+    };
+    fetchData();
+    return () => {
+      isMounted = false;
+    };
+  }, [contractConfig]);
 
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -218,16 +246,7 @@ export default function Counterparty() {
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>Current Premiums:</div>
                       <div className="font-medium text-orange-500">
-                        {area === "area1"
-                          ? "2,450"
-                          : area === "area2"
-                          ? "5,675"
-                          : area === "area3"
-                          ? "3,280"
-                          : area === "area4"
-                          ? "4,120"
-                          : "0"}{" "}
-                        USDC
+                        {premiumAssets} USDC
                       </div>
                       <div>Active Policies:</div>
                       <div className="font-medium">
@@ -244,15 +263,10 @@ export default function Counterparty() {
                       </div>
                       <div>Estimated APY:</div>
                       <div className="font-medium text-orange-500">
-                        {area === "area1"
-                          ? "10.2%"
-                          : area === "area2"
-                          ? "8.5%"
-                          : area === "area3"
-                          ? "11.5%"
-                          : area === "area4"
-                          ? "9.8%"
-                          : "8-12%"}
+                        {contractConfig?.coverageAPY
+                          ? contractConfig?.coverageAPY
+                          : 0}
+                        %
                       </div>
                       <div>Risk Score:</div>
                       <div className="font-medium">

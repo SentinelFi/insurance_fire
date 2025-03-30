@@ -1,5 +1,9 @@
 import { signTransactionClient } from "@/actions/client";
-import { prepareDepositVault, sendTransactionServer } from "@/actions/server";
+import {
+  prepareDepositVault,
+  sendTransactionServer,
+  simulateGetAction,
+} from "@/actions/server";
 
 export async function deposit(
   vaultAddress: string,
@@ -16,4 +20,11 @@ export async function deposit(
   );
   const sgn = await signTransactionClient(prep);
   return await sendTransactionServer(sgn);
+}
+
+export async function totalAssets(
+  vaultAddress: string,
+  caller: string
+): Promise<string | number | bigint | object> {
+  return await simulateGetAction(vaultAddress, "total_assets", caller);
 }

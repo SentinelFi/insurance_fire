@@ -5,11 +5,12 @@ import {
   BASE_FEE,
   Contract,
   Networks,
+  scValToNative,
   Transaction,
   TransactionBuilder,
   xdr,
 } from "@stellar/stellar-sdk";
-import { Server } from "@stellar/stellar-sdk/rpc";
+import { Api, Server } from "@stellar/stellar-sdk/rpc";
 
 const SERVER = new Server("https://soroban-testnet.stellar.org:443");
 const NETWORK = Networks.TESTNET;
@@ -34,6 +35,14 @@ export async function prepareDepositVault(
     operationName,
     params
   );
+}
+
+export async function simulateGetAction(
+  contractId: string,
+  operationName: string,
+  caller: string
+): Promise<string | number | bigint | object> {
+  return await simulateTx(caller, contractId, operationName);
 }
 
 async function prepareTransactionServer(
@@ -107,4 +116,54 @@ export async function sendTransactionServer(
   console.log("[server] Return value:", returnValue);
 
   return true;
+}
+
+async function simulateTx(
+  publicKey: string,
+  contractId: string,
+  operationName: string,
+  operationParams?: xdr.ScVal[]
+): Promise<string | number | bigint | object> {
+  console.log("[server] Simulate transaction");
+
+  const account = await SERVER.getAccount(publicKey);
+
+  const contract = new Contract(contractId);
+
+  const operation =
+    operationParams && operationParams.length > 0
+      ? contract.call(operationName, ...operationParams)
+      : contract.call(operationName);
+
+  const transaction = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+  })
+    .setNetworkPassphrase(NETWORK)
+    .setTimeout(TIMEOUT_SEC)
+    .addOperation(operation)
+    .build();
+
+  const simulatedTransaction = await SERVER.simulateTransaction(transaction);
+
+  if (!simulatedTransaction) throw "Empty simulate transaction response.";
+
+  return handleSimulationResponse(simulatedTransaction);
+}
+
+function handleSimulationResponse(
+  response: Api.SimulateTransactionResponse
+): string | number | bigint {
+  if (Api.isSimulationSuccess(response)) {
+    if (response.result?.retval) {
+      return scValToNative(response.result.retval);
+    } else {
+      throw "Return value not set";
+    }
+  } else if (Api.isSimulationError(response)) {
+    console.log(response.error);
+    throw response.error;
+  } else {
+    console.log(response);
+    throw "Unexpected simulation response";
+  }
 }

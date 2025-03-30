@@ -38,7 +38,7 @@ import { useWallet } from "../../context/wallet-context";
 import QRCode from "react-qr-code";
 import { getProofs, start } from "@/actions/reclaim";
 import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
-import { deposit } from "@/lib/actions";
+import { deposit, totalAssets } from "@/lib/actions";
 
 export default function Insurance() {
   const [epoch, setEpoch] = useState("");
@@ -49,6 +49,7 @@ export default function Insurance() {
   const [showPolicyDialog, setShowPolicyDialog] = useState(false);
   const [verificationStep, setVerificationStep] = useState(1);
   const [policyAgreed, setPolicyAgreed] = useState(false);
+  const [counterpartyAssets, setCounterpartyAssets] = useState(0);
 
   const { walletAddress } = useWallet();
 
@@ -74,6 +75,33 @@ export default function Insurance() {
       setContractConfig(null);
     }
   }, [epoch, area]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchData = async () => {
+      try {
+        if (isMounted) {
+          console.log("Fetching counterparty assets.");
+          if (contractConfig?.riskContactAddress && walletAddress) {
+            const total_assets = await totalAssets(
+              contractConfig?.riskContactAddress,
+              walletAddress
+            );
+            setCounterpartyAssets(Number(total_assets));
+            console.log("Counterparty assets:", total_assets);
+          } else {
+            setCounterpartyAssets(0);
+          }
+        }
+      } catch (e) {
+        console.log("Error loading total assets.", e);
+      }
+    };
+    fetchData();
+    return () => {
+      isMounted = false;
+    };
+  }, [contractConfig]);
 
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -302,16 +330,7 @@ export default function Insurance() {
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>Available Coverage:</div>
                       <div className="font-medium text-green-600">
-                        {area === "area1"
-                          ? "5,200"
-                          : area === "area2"
-                          ? "12,350"
-                          : area === "area3"
-                          ? "8,500"
-                          : area === "area4"
-                          ? "7,800"
-                          : "0"}{" "}
-                        USDC
+                        {counterpartyAssets} USDC
                       </div>
                       <div>Provided by:</div>
                       <div className="font-medium">
@@ -448,7 +467,11 @@ export default function Insurance() {
                 <div>
                   <h3 className="font-medium mb-1">Potential ROI</h3>
                   <p className="text-xl font-semibold text-orange-500">
-                    8-12% APY
+                    {contractConfig?.insuranceROI
+                      ? contractConfig?.insuranceROI
+                      : 0}
+                    {"% "}
+                    APY
                   </p>
                   <p className="text-xs text-gray-500">
                     For coverage providers, varies based on risk assessment
