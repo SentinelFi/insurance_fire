@@ -33,6 +33,7 @@ import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
 import { deposit, redeem, totalAssets, totalSharesOf } from "@/lib/actions";
 import { v4 as uuidv4 } from "uuid";
 import { isDateActive } from "@/lib/utils";
+import WildfireMap from "@/components/WildfireMap";
 
 export default function Counterparty() {
   const [epoch, setEpoch] = useState("");
@@ -520,6 +521,9 @@ export default function Counterparty() {
                 )}
               </CardContent>
             </Card>
+
+            <br></br>
+            <WildfireMap />
           </div>
 
           <div className="md:w-1/3">

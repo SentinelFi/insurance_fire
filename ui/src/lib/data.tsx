@@ -191,3 +191,12 @@ export type InsurancePolicy = {
   expires: string;
   vaultAddress: string;
 };
+
+export interface Wildfire {
+  latitude: number;
+  longitude: number;
+  brightness: number;
+  acq_date: string;
+  acq_time: string;
+  confidence: number;
+}
