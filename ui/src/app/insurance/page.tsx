@@ -483,8 +483,9 @@ export default function Insurance() {
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-medium mb-1">Potential ROI</h3>
+                  <h3 className="font-medium mb-1">Potential Return</h3>
                   <p className="text-xl font-semibold text-orange-500">
+                    {"Initial + "}
                     {contractConfig?.insuranceROI
                       ? contractConfig?.insuranceROI
                       : 0}

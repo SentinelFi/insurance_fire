@@ -18,8 +18,8 @@ export const fireBastionConfigs: FireBastionConfig[] = [
       "CDTZJKJIOZWJWOWCZK2XW433ZT5ULLCPU3NBB6RR73TPAOJVJOLFEEZY",
     areaId: "area1",
     epochId: "epoch1",
-    insuranceROI: 7.25,
-    coverageAPY: 8.75,
+    insuranceROI: 50.25,
+    coverageAPY: 49.75,
   },
   {
     marketContactAddress:
@@ -30,7 +30,7 @@ export const fireBastionConfigs: FireBastionConfig[] = [
       "CAQA3Y2QP6CVEBDHFGZKZM473XKCZHNHANHSYDD5P7X35BVT65GHQLL5",
     areaId: "area1",
     epochId: "epoch2",
-    insuranceROI: 8.15,
-    coverageAPY: 9.25,
+    insuranceROI: 65.75,
+    coverageAPY: 37.25,
   },
 ];
