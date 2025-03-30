@@ -26,6 +26,7 @@ import Link from "next/link";
 import { counterpartyData, coverageAreas, insuranceEpochs } from "@/lib/data";
 import { useWallet } from "../../context/wallet-context";
 import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
+import { deposit } from "@/lib/actions";
 
 export default function Counterparty() {
   const [epoch, setEpoch] = useState("");
@@ -34,6 +35,7 @@ export default function Counterparty() {
     useState<FireBastionConfig | null>(null);
   const [coverageAmount, setCoverageAmount] = useState(1000);
   const [showFireworks, setShowFireworks] = useState(false);
+  const [depositing, setDepositing] = useState(false);
 
   const { walletAddress } = useWallet();
 
@@ -63,21 +65,55 @@ export default function Counterparty() {
   };
 
   const handleProvideCoverage = async () => {
-    if (!contractConfig) {
+    try {
+      setDepositing(true);
+      if (!contractConfig) {
+        toast({
+          title: "Failed",
+          description: "Unable to find configured insurance!",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!walletAddress) {
+        toast({
+          title: "Wallet Error",
+          description: "Wallet not connected!",
+          variant: "destructive",
+        });
+        return;
+      }
+      const deposited = await deposit(
+        contractConfig.riskContactAddress,
+        walletAddress,
+        walletAddress,
+        BigInt(coverageAmount)
+      );
+      if (deposited) {
+        setShowFireworks(true);
+        toast({
+          title: "Success",
+          description: "Coverage provided successfully!",
+          variant: "default",
+        });
+      } else {
+        console.log("Deposit returned false.");
+        toast({
+          title: "Failed",
+          description: "Something went wrong! Check console for details.",
+          variant: "default",
+        });
+      }
+    } catch (e) {
+      console.log("Deposit error:", e);
       toast({
         title: "Failed",
-        description: "Unable to find configured insurance!",
-        variant: "destructive",
+        description: "Something went wrong! Check console for details.",
+        variant: "default",
       });
-      return;
+    } finally {
+      setDepositing(false);
     }
-
-    setShowFireworks(true);
-    toast({
-      title: "Success",
-      description: "Coverage provided successfully!",
-      variant: "default",
-    });
   };
 
   return (
@@ -236,9 +272,10 @@ export default function Counterparty() {
                   <div className="pt-4">
                     <Button
                       onClick={handleProvideCoverage}
+                      disabled={depositing}
                       className="w-full bg-orange-500 hover:bg-orange-600"
                     >
-                      Provide Coverage
+                      {depositing ? "Processing..." : "Provide Coverage"}
                     </Button>
                   </div>
                 </CardContent>
