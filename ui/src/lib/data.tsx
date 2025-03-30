@@ -139,18 +139,11 @@ export const counterpartyData = [
   },
 ];
 
-export const coverageAreas = [
-  { id: "area1", name: "San Francisco Bay Area" },
-  { id: "area2", name: "Los Angeles County" },
-  { id: "area3", name: "New York Metropolitan" },
-  { id: "area4", name: "King County" },
-];
+export const coverageAreas = [{ id: "area1", name: "San Francisco Bay Area" }];
 
 export const insuranceEpochs = [
-  { id: "epoch1", name: "May 1, 2025 - May 31, 2025" },
-  { id: "epoch2", name: "June 1, 2025 - August 31, 2025" },
-  { id: "epoch3", name: "September 1, 2025 - February 28, 2025" },
-  { id: "epoch4", name: "March 1, 2026 - March 1, 2027" },
+  { id: "epoch1", name: "March 30, 2025 - April 30, 2025" },
+  { id: "epoch2", name: "May 1, 2025 - May 31, 2025" },
 ];
 
 export const insuranceData = [

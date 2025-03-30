@@ -4,9 +4,13 @@ import { Github, Twitter, Youtube } from "lucide-react";
 import Logo from "./Logo";
 import { navLinks } from "@/lib/data";
 import Link from "next/link";
+import { fireBastionConfigs } from "@/lib/config";
 
 export default function Footer() {
-  const ADDRESS = "GABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+  const ADDRESS =
+    fireBastionConfigs && fireBastionConfigs.length > 0
+      ? fireBastionConfigs[0].marketContactAddress
+      : "N/A";
 
   return (
     <footer className="glass-card border-t mt-10">
@@ -106,7 +110,14 @@ export default function Footer() {
           <div className="md:col-span-3">
             <h3 className="font-medium text-base mb-4">Smart Contract</h3>
             <div className="p-3 bg-secondary/50 rounded-lg text-xs font-mono text-muted-foreground break-all mb-3">
-              {ADDRESS}
+              <Link
+                href={`https://stellar.expert/explorer/testnet/contract/${ADDRESS}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {ADDRESS.substring(0, 20)}...
+                {ADDRESS.substring(ADDRESS.length - 20)}
+              </Link>
             </div>
             <div className="flex items-center">
               <span className="flex items-center text-xs">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -25,16 +25,33 @@ import Fireworks from "@/components/Fireworks";
 import Link from "next/link";
 import { counterpartyData, coverageAreas, insuranceEpochs } from "@/lib/data";
 import { useWallet } from "../../context/wallet-context";
+import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
 
 export default function Counterparty() {
   const [epoch, setEpoch] = useState("");
   const [area, setArea] = useState("");
+  const [contractConfig, setContractConfig] =
+    useState<FireBastionConfig | null>(null);
   const [coverageAmount, setCoverageAmount] = useState(1000);
   const [showFireworks, setShowFireworks] = useState(false);
 
   const { walletAddress } = useWallet();
 
-  const contractAddress = "GABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+  useEffect(() => {
+    console.log("Epoch ID: ", epoch, " - Area ID: ", area);
+    if (!epoch || !area) {
+      setContractConfig(null);
+      return;
+    }
+    const insur = fireBastionConfigs.find(
+      (val) => val.areaId === area && val.epochId === epoch
+    );
+    if (insur) {
+      setContractConfig(insur);
+    } else {
+      setContractConfig(null);
+    }
+  }, [epoch, area]);
 
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -45,7 +62,16 @@ export default function Counterparty() {
     });
   };
 
-  const handleProvideCoverage = () => {
+  const handleProvideCoverage = async () => {
+    if (!contractConfig) {
+      toast({
+        title: "Failed",
+        description: "Unable to find configured insurance!",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setShowFireworks(true);
     toast({
       title: "Success",
@@ -314,14 +340,18 @@ export default function Counterparty() {
                 </div>
                 <div>
                   <h3 className="font-medium mb-1">Smart Contract Address</h3>
-                  <Link
-                    href={`https://stellar.expert/explorer/public/contract/${contractAddress}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs bg-gray-100 p-2 rounded block break-all hover:bg-gray-200 transition-colors"
-                  >
-                    {contractAddress}
-                  </Link>
+                  {contractConfig?.marketContactAddress ? (
+                    <Link
+                      href={`https://stellar.expert/explorer/testnet/contract/${contractConfig?.marketContactAddress}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs bg-gray-100 p-2 rounded block break-all hover:bg-gray-200 transition-colors"
+                    >
+                      {contractConfig?.marketContactAddress}
+                    </Link>
+                  ) : (
+                    <i>Select epoch and area to view</i>
+                  )}
                 </div>
                 <div className="bg-gray-100 p-3 rounded-lg">
                   <h3 className="font-medium mb-1">Risk vs Reward</h3>

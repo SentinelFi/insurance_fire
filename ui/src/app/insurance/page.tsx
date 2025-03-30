@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -37,6 +37,7 @@ import Link from "next/link";
 import { useWallet } from "../../context/wallet-context";
 import QRCode from "react-qr-code";
 import { getProofs, start } from "@/actions/reclaim";
+import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
 
 export default function Insurance() {
   const [epoch, setEpoch] = useState("");
@@ -50,11 +51,27 @@ export default function Insurance() {
 
   const { walletAddress } = useWallet();
 
-  const contractAddress = "GABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-
   const [requestUrl, setRequestUrl] = useState("");
   const [proofs, setProofs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [contractConfig, setContractConfig] =
+    useState<FireBastionConfig | null>(null);
+
+  useEffect(() => {
+    console.log("Epoch ID: ", epoch, " - Area ID: ", area);
+    if (!epoch || !area) {
+      setContractConfig(null);
+      return;
+    }
+    const insur = fireBastionConfigs.find(
+      (val) => val.areaId === area && val.epochId === epoch
+    );
+    if (insur) {
+      setContractConfig(insur);
+    } else {
+      setContractConfig(null);
+    }
+  }, [epoch, area]);
 
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -128,8 +145,18 @@ export default function Insurance() {
     setShowPolicyDialog(true);
   };
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     setShowPolicyDialog(false);
+
+    if (!contractConfig) {
+      toast({
+        title: "Failed",
+        description: "Unable to find configured insurance!",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setShowFireworks(true);
     toast({
       title: "Success",
@@ -351,15 +378,19 @@ export default function Insurance() {
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="font-medium mb-1">Smart Contract</h3>
-                  <Link
-                    href={`https://stellar.expert/explorer/public/contract/${contractAddress}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs bg-gray-100 p-2 rounded block break-all hover:bg-gray-200 transition-colors flex items-center justify-between"
-                  >
-                    <span>{contractAddress}</span>
-                    <ExternalLink size={14} className="text-gray-500" />
-                  </Link>
+                  {contractConfig?.marketContactAddress ? (
+                    <Link
+                      href={`https://stellar.expert/explorer/testnet/contract/${contractConfig?.marketContactAddress}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs bg-gray-100 p-2 rounded block break-all hover:bg-gray-200 transition-colors flex items-center justify-between"
+                    >
+                      <span>{contractConfig?.marketContactAddress}</span>
+                      <ExternalLink size={14} className="text-gray-500" />
+                    </Link>
+                  ) : (
+                    <i>Select epoch and area to view</i>
+                  )}
                 </div>
                 <div>
                   <h3 className="font-medium mb-1">Oracle Provider</h3>
