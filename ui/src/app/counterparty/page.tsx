@@ -23,10 +23,16 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
 import Fireworks from "@/components/Fireworks";
 import Link from "next/link";
-import { counterpartyData, coverageAreas, insuranceEpochs } from "@/lib/data";
+import {
+  /*counterpartyData,*/ coverageAreas,
+  insuranceEpochs,
+  InsurancePolicy,
+} from "@/lib/data";
 import { useWallet } from "../../context/wallet-context";
 import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
-import { deposit, totalAssets } from "@/lib/actions";
+import { deposit, redeem, totalAssets, totalSharesOf } from "@/lib/actions";
+import { v4 as uuidv4 } from "uuid";
+import { isDateActive } from "@/lib/utils";
 
 export default function Counterparty() {
   const [epoch, setEpoch] = useState("");
@@ -37,7 +43,12 @@ export default function Counterparty() {
   const [showFireworks, setShowFireworks] = useState(false);
   const [depositing, setDepositing] = useState(false);
   const [redeeming, setRedeeming] = useState(false);
+  const [loadingPortfolio, setLoadingPortfolio] = useState(false);
+  const [reload, setReload] = useState(false);
   const [premiumAssets, setPremiumAssets] = useState(0);
+  const [userInsurancePolicies, setUserInsurancePolicies] = useState<
+    InsurancePolicy[]
+  >([]);
 
   const { walletAddress } = useWallet();
 
@@ -83,6 +94,70 @@ export default function Counterparty() {
       isMounted = false;
     };
   }, [contractConfig]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchData = async () => {
+      try {
+        if (isMounted) {
+          console.log("Fetching user's shares");
+          setLoadingPortfolio(true);
+          if (
+            !fireBastionConfigs ||
+            fireBastionConfigs.length <= 0 ||
+            !walletAddress
+          ) {
+            return;
+          }
+          const insurances: InsurancePolicy[] = [];
+          for (let i = 0; i < fireBastionConfigs.length; i++) {
+            const contractAddress = fireBastionConfigs[i].riskContactAddress;
+            const shares_balance = await totalSharesOf(
+              contractAddress,
+              walletAddress,
+              walletAddress
+            );
+            const balance = Number(shares_balance);
+            console.log("Shares balance:", balance);
+            if (balance > 0) {
+              const areaName =
+                coverageAreas.find((a) => a.id === fireBastionConfigs[i].areaId)
+                  ?.name ?? "Unknown";
+              const epochName =
+                insuranceEpochs.find(
+                  (a) => a.id === fireBastionConfigs[i].epochId
+                )?.name ?? "Unknown";
+              let expireDate = "Unknown";
+              try {
+                expireDate = epochName.split(" - ")[1];
+              } catch (e) {
+                console.log("Unable to parse expire date.");
+              }
+              const active = isDateActive(expireDate);
+              insurances.push({
+                id: uuidv4(),
+                isActive: active,
+                area: areaName,
+                epoch: epochName,
+                amount: balance,
+                expires: expireDate,
+                vaultAddress: fireBastionConfigs[i].riskContactAddress,
+              });
+            }
+          }
+          setUserInsurancePolicies(insurances);
+        }
+      } catch (e) {
+        console.log("Error loading user's balance of shares.", e);
+      } finally {
+        setLoadingPortfolio(false);
+      }
+    };
+    fetchData();
+    return () => {
+      isMounted = false;
+    };
+  }, [walletAddress, reload]);
 
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -142,6 +217,7 @@ export default function Counterparty() {
           description: "Coverage provided successfully!",
           variant: "default",
         });
+        setReload(!reload);
       } else {
         console.log("Deposit returned false.");
         toast({
@@ -159,6 +235,68 @@ export default function Counterparty() {
       });
     } finally {
       setDepositing(false);
+    }
+  };
+
+  const handleExit = async (policy: InsurancePolicy) => {
+    try {
+      setRedeeming(true);
+      if (!policy.vaultAddress) {
+        toast({
+          title: "Failed",
+          description: "Unable to find configured coverage!",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!policy.amount) {
+        toast({
+          title: "Failed",
+          description: "Invalid amount!",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!walletAddress) {
+        toast({
+          title: "Wallet Error",
+          description: "Wallet not connected!",
+          variant: "destructive",
+        });
+        return;
+      }
+      const redeemed = await redeem(
+        policy.vaultAddress,
+        walletAddress,
+        walletAddress,
+        walletAddress,
+        BigInt(policy.amount)
+      );
+      if (redeemed) {
+        setShowFireworks(true);
+        toast({
+          title: "Success",
+          description: "Exited successfully!",
+          variant: "default",
+        });
+        setReload(!reload);
+      } else {
+        console.log("Redeem returned false.");
+        toast({
+          title: "Failed",
+          description: "Something went wrong! Check console for details.",
+          variant: "default",
+        });
+      }
+    } catch (e) {
+      console.log("Redeem error:", e);
+      toast({
+        title: "Failed",
+        description: "Something went wrong! Check console for details.",
+        variant: "default",
+      });
+    } finally {
+      setRedeeming(false);
     }
   };
 
@@ -327,48 +465,54 @@ export default function Counterparty() {
               </CardHeader>
               <CardContent>
                 {walletAddress ? (
-                  <div className="space-y-4">
-                    {counterpartyData.map((policy) => (
-                      <div
-                        key={policy.id}
-                        className={`border rounded-lg p-4 hover:bg-orange-50 dark:hover:bg-brown-600 dark:hover:text-black transition duration-200 ${
-                          !policy.isActive ? "opacity-70" : ""
-                        }`}
-                      >
-                        <div className="flex justify-between mb-2">
-                          <span className="font-semibold">
-                            Coverage #{policy.id}
-                          </span>
-                          <span
-                            className={
-                              policy.isActive
-                                ? "text-green-500 font-medium"
-                                : "text-gray-500 font-medium"
-                            }
-                          >
-                            {policy.isActive ? "Active" : "Expired"}
-                          </span>
+                  loadingPortfolio ? (
+                    <div className="text-center py-8 text-gray-500">
+                      Loading...
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {userInsurancePolicies.map((policy) => (
+                        <div
+                          key={policy.id}
+                          className={`border rounded-lg p-4 hover:bg-orange-50 dark:hover:bg-brown-600 dark:hover:text-black transition duration-200 ${
+                            !policy.isActive ? "opacity-70" : ""
+                          }`}
+                        >
+                          <div className="flex justify-between mb-2">
+                            <span className="font-semibold">
+                              Coverage #{policy.id}
+                            </span>
+                            <span
+                              className={
+                                policy.isActive
+                                  ? "text-green-500 font-medium"
+                                  : "text-gray-500 font-medium"
+                              }
+                            >
+                              {policy.isActive ? "Active" : "Expired"}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                            <div>Area: {policy.area}</div>
+                            <div>Epoch: {policy.epoch}</div>
+                            <div>Amount: {policy.amount} shares of USDC</div>
+                            <div>Expires: {policy.expires}</div>
+                          </div>
+                          <div className="mt-3 flex justify-end">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-gray-600"
+                              onClick={() => handleExit(policy)}
+                              disabled={redeeming}
+                            >
+                              {redeeming ? "Exiting..." : "Exit Coverage"}
+                            </Button>
+                          </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                          <div>Area: {policy.area}</div>
-                          <div>Epoch: {policy.epoch}</div>
-                          <div>Amount: {policy.amount}</div>
-                          <div>Expires: {policy.expires}</div>
-                        </div>
-                        <div className="mt-3 flex justify-end">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-gray-600"
-                            // onClick={() => handleExit(policy)}
-                            disabled={redeeming}
-                          >
-                            {redeeming ? "Exiting..." : "Exit Coverage"}
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )
                 ) : (
                   <div className="text-center py-8 text-gray-500">
                     Connect your wallet to view your coverage provisions

@@ -104,40 +104,41 @@ export const faqs = [
   },
 ];
 
-export const counterpartyData = [
-  {
-    id: 1,
-    area: "Los Angeles County",
-    epoch: "Jun 1 - Aug 31, 2025",
-    amount: "2500 USDC",
-    expires: "Aug 31, 2025",
-    isActive: true,
-  },
-  {
-    id: 2,
-    area: "New York Metropolitan",
-    epoch: "May 1 - May 31, 2024",
-    amount: "800 USDC",
-    expires: "May 31, 2024",
-    isActive: false,
-  },
-  {
-    id: 3,
-    area: "San Francisco Bay Area",
-    epoch: "Mar 1, 2025 - Mar 1, 2026",
-    amount: "5000 USDC",
-    expires: "Mar 1, 2026",
-    isActive: true,
-  },
-  {
-    id: 4,
-    area: "King County",
-    epoch: "Jan 1 - Mar 31, 2024",
-    amount: "1200 USDC",
-    expires: "Mar 31, 2024",
-    isActive: false,
-  },
-];
+// For testing
+// export const counterpartyData = [
+//   {
+//     id: 1,
+//     area: "Los Angeles County",
+//     epoch: "Jun 1 - Aug 31, 2025",
+//     amount: "2500 USDC",
+//     expires: "Aug 31, 2025",
+//     isActive: true,
+//   },
+//   {
+//     id: 2,
+//     area: "New York Metropolitan",
+//     epoch: "May 1 - May 31, 2024",
+//     amount: "800 USDC",
+//     expires: "May 31, 2024",
+//     isActive: false,
+//   },
+//   {
+//     id: 3,
+//     area: "San Francisco Bay Area",
+//     epoch: "Mar 1, 2025 - Mar 1, 2026",
+//     amount: "5000 USDC",
+//     expires: "Mar 1, 2026",
+//     isActive: true,
+//   },
+//   {
+//     id: 4,
+//     area: "King County",
+//     epoch: "Jan 1 - Mar 31, 2024",
+//     amount: "1200 USDC",
+//     expires: "Mar 31, 2024",
+//     isActive: false,
+//   },
+// ];
 
 export const coverageAreas = [
   {
@@ -153,6 +154,7 @@ export const insuranceEpochs = [
   { id: "epoch2", name: "May 1, 2025 - May 31, 2025" },
 ];
 
+// For testing
 // export const insuranceData = [
 //   {
 //     id: 1,
@@ -185,7 +187,7 @@ export type InsurancePolicy = {
   isActive: boolean;
   area: string;
   epoch: string;
-  premium: number;
+  amount: number;
   expires: string;
   vaultAddress: string;
 };

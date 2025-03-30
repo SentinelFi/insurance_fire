@@ -45,6 +45,7 @@ import { getProofs, start } from "@/actions/reclaim";
 import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
 import { deposit, redeem, totalAssets, totalSharesOf } from "@/lib/actions";
 import { v4 as uuidv4 } from "uuid";
+import { isDateActive } from "@/lib/utils";
 
 export default function Insurance() {
   const [epoch, setEpoch] = useState("");
@@ -156,10 +157,10 @@ export default function Insurance() {
               const active = isDateActive(expireDate);
               insurances.push({
                 id: uuidv4(),
-                isActive: true,
+                isActive: active,
                 area: areaName,
                 epoch: epochName,
-                premium: balance,
+                amount: balance,
                 expires: expireDate,
                 vaultAddress: fireBastionConfigs[i].hedgeContactAddress,
               });
@@ -178,18 +179,6 @@ export default function Insurance() {
       isMounted = false;
     };
   }, [walletAddress, reload]);
-
-  function isDateActive(dateString: string) {
-    try {
-      const inputDate = new Date(dateString);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return inputDate >= today;
-    } catch (e) {
-      console.log("Active date error:", e);
-      return true;
-    }
-  }
 
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -347,7 +336,7 @@ export default function Insurance() {
         });
         return;
       }
-      if (!policy.premium) {
+      if (!policy.amount) {
         toast({
           title: "Failed",
           description: "Invalid amount!",
@@ -368,7 +357,7 @@ export default function Insurance() {
         walletAddress,
         walletAddress,
         walletAddress,
-        BigInt(policy.premium)
+        BigInt(policy.amount)
       );
       if (redeemed) {
         setShowFireworks(true);
@@ -576,7 +565,7 @@ export default function Insurance() {
                           <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
                             <div>Area: {policy.area}</div>
                             <div>Epoch: {policy.epoch}</div>
-                            <div>Premium: {policy.premium} shares of USDC</div>
+                            <div>Premium: {policy.amount} shares of USDC</div>
                             <div>Expires: {policy.expires}</div>
                           </div>
                           <div className="mt-3 flex justify-end">
