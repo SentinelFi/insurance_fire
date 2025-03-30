@@ -187,4 +187,5 @@ export type InsurancePolicy = {
   epoch: string;
   premium: number;
   expires: string;
+  vaultAddress: string;
 };

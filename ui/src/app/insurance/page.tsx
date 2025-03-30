@@ -43,7 +43,7 @@ import { useWallet } from "../../context/wallet-context";
 import QRCode from "react-qr-code";
 import { getProofs, start } from "@/actions/reclaim";
 import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
-import { deposit, totalAssets, totalSharesOf } from "@/lib/actions";
+import { deposit, redeem, totalAssets, totalSharesOf } from "@/lib/actions";
 import { v4 as uuidv4 } from "uuid";
 
 export default function Insurance() {
@@ -57,6 +57,7 @@ export default function Insurance() {
   const [policyAgreed, setPolicyAgreed] = useState(false);
   const [counterpartyAssets, setCounterpartyAssets] = useState(0);
   const [loadingPortfolio, setLoadingPortfolio] = useState(false);
+  const [reload, setReload] = useState(false);
   const [userInsurancePolicies, setUserInsurancePolicies] = useState<
     InsurancePolicy[]
   >([]);
@@ -67,6 +68,7 @@ export default function Insurance() {
   const [proofs, setProofs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [depositing, setDepositing] = useState(false);
+  const [redeeming, setRedeeming] = useState(false);
   const [contractConfig, setContractConfig] =
     useState<FireBastionConfig | null>(null);
 
@@ -151,6 +153,7 @@ export default function Insurance() {
               } catch (e) {
                 console.log("Unable to parse expire date.");
               }
+              const active = isDateActive(expireDate);
               insurances.push({
                 id: uuidv4(),
                 isActive: true,
@@ -158,6 +161,7 @@ export default function Insurance() {
                 epoch: epochName,
                 premium: balance,
                 expires: expireDate,
+                vaultAddress: fireBastionConfigs[i].hedgeContactAddress,
               });
             }
           }
@@ -173,7 +177,19 @@ export default function Insurance() {
     return () => {
       isMounted = false;
     };
-  }, [walletAddress]);
+  }, [walletAddress, reload]);
+
+  function isDateActive(dateString: string) {
+    try {
+      const inputDate = new Date(dateString);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return inputDate >= today;
+    } catch (e) {
+      console.log("Active date error:", e);
+      return true;
+    }
+  }
 
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -299,6 +315,7 @@ export default function Insurance() {
           description: "Insurance purchased successfully!",
           variant: "default",
         });
+        setReload(!reload);
       } else {
         console.log("Deposit returned false.");
         toast({
@@ -316,6 +333,68 @@ export default function Insurance() {
       });
     } finally {
       setDepositing(false);
+    }
+  };
+
+  const handleExit = async (policy: InsurancePolicy) => {
+    try {
+      setRedeeming(true);
+      if (!policy.vaultAddress) {
+        toast({
+          title: "Failed",
+          description: "Unable to find configured insurance!",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!policy.premium) {
+        toast({
+          title: "Failed",
+          description: "Invalid amount!",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!walletAddress) {
+        toast({
+          title: "Wallet Error",
+          description: "Wallet not connected!",
+          variant: "destructive",
+        });
+        return;
+      }
+      const redeemed = await redeem(
+        policy.vaultAddress,
+        walletAddress,
+        walletAddress,
+        walletAddress,
+        BigInt(policy.premium)
+      );
+      if (redeemed) {
+        setShowFireworks(true);
+        toast({
+          title: "Success",
+          description: "Exited successfully!",
+          variant: "default",
+        });
+        setReload(!reload);
+      } else {
+        console.log("Redeem returned false.");
+        toast({
+          title: "Failed",
+          description: "Something went wrong! Check console for details.",
+          variant: "default",
+        });
+      }
+    } catch (e) {
+      console.log("Redeem error:", e);
+      toast({
+        title: "Failed",
+        description: "Something went wrong! Check console for details.",
+        variant: "default",
+      });
+    } finally {
+      setRedeeming(false);
     }
   };
 
@@ -505,8 +584,10 @@ export default function Insurance() {
                               variant="outline"
                               size="sm"
                               className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-gray-600"
+                              onClick={() => handleExit(policy)}
+                              disabled={redeeming}
                             >
-                              Exit Policy
+                              {redeeming ? "Exiting..." : "Exit Policy"}
                             </Button>
                           </div>
                         </div>

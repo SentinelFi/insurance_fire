@@ -1,6 +1,7 @@
 import { signTransactionClient } from "@/actions/client";
 import {
   prepareDepositVault,
+  prepareRedeemVault,
   sendTransactionServer,
   simulateGetAction,
   simulateTotalSharesOf,
@@ -18,6 +19,25 @@ export async function deposit(
     caller,
     receiver,
     assets
+  );
+  const sgn = await signTransactionClient(prep);
+  return await sendTransactionServer(sgn);
+}
+
+export async function redeem(
+  vaultAddress: string,
+  caller: string,
+  receiver: string,
+  owner: string,
+  shares: bigint
+): Promise<boolean> {
+  const prep = await prepareRedeemVault(
+    vaultAddress,
+    "redeem",
+    caller,
+    receiver,
+    owner,
+    shares
   );
   const sgn = await signTransactionClient(prep);
   return await sendTransactionServer(sgn);

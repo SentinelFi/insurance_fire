@@ -36,6 +36,7 @@ export default function Counterparty() {
   const [coverageAmount, setCoverageAmount] = useState(200);
   const [showFireworks, setShowFireworks] = useState(false);
   const [depositing, setDepositing] = useState(false);
+  const [redeeming, setRedeeming] = useState(false);
   const [premiumAssets, setPremiumAssets] = useState(0);
 
   const { walletAddress } = useWallet();
@@ -359,9 +360,10 @@ export default function Counterparty() {
                             variant="outline"
                             size="sm"
                             className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-gray-600"
-                            disabled={!policy.isActive}
+                            // onClick={() => handleExit(policy)}
+                            disabled={redeeming}
                           >
-                            Exit Coverage
+                            {redeeming ? "Exiting..." : "Exit Coverage"}
                           </Button>
                         </div>
                       </div>

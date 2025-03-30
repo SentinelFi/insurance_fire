@@ -37,6 +37,28 @@ export async function prepareDepositVault(
   );
 }
 
+export async function prepareRedeemVault(
+  contractId: string,
+  operationName: string,
+  caller: string,
+  receiver: string,
+  owner: string,
+  shares: bigint
+): Promise<string> {
+  const params = [
+    converter.toI128(shares),
+    converter.stringToAddress(caller),
+    converter.stringToAddress(receiver),
+    converter.stringToAddress(owner),
+  ];
+  return await prepareTransactionServer(
+    caller,
+    contractId,
+    operationName,
+    params
+  );
+}
+
 export async function simulateGetAction(
   contractId: string,
   operationName: string,
