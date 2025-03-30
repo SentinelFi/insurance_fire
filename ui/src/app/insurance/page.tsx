@@ -32,13 +32,19 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ExternalLink, MapPin, FileText, CheckCircle } from "lucide-react";
-import { coverageAreas, insuranceData, insuranceEpochs } from "@/lib/data";
+import {
+  coverageAreas,
+  // insuranceData,
+  insuranceEpochs,
+  InsurancePolicy,
+} from "@/lib/data";
 import Link from "next/link";
 import { useWallet } from "../../context/wallet-context";
 import QRCode from "react-qr-code";
 import { getProofs, start } from "@/actions/reclaim";
 import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
-import { deposit, totalAssets } from "@/lib/actions";
+import { deposit, totalAssets, totalSharesOf } from "@/lib/actions";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Insurance() {
   const [epoch, setEpoch] = useState("");
@@ -50,6 +56,10 @@ export default function Insurance() {
   const [verificationStep, setVerificationStep] = useState(1);
   const [policyAgreed, setPolicyAgreed] = useState(false);
   const [counterpartyAssets, setCounterpartyAssets] = useState(0);
+  const [loadingPortfolio, setLoadingPortfolio] = useState(false);
+  const [userInsurancePolicies, setUserInsurancePolicies] = useState<
+    InsurancePolicy[]
+  >([]);
 
   const { walletAddress } = useWallet();
 
@@ -102,6 +112,68 @@ export default function Insurance() {
       isMounted = false;
     };
   }, [contractConfig]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchData = async () => {
+      try {
+        if (isMounted) {
+          console.log("Fetching user's shares");
+          setLoadingPortfolio(true);
+          if (
+            !fireBastionConfigs ||
+            fireBastionConfigs.length <= 0 ||
+            !walletAddress
+          ) {
+            return;
+          }
+          const insurances: InsurancePolicy[] = [];
+          for (let i = 0; i < fireBastionConfigs.length; i++) {
+            const contractAddress = fireBastionConfigs[i].hedgeContactAddress;
+            const shares_balance = await totalSharesOf(
+              contractAddress,
+              walletAddress,
+              walletAddress
+            );
+            const balance = Number(shares_balance);
+            console.log("Shares balance:", balance);
+            if (balance > 0) {
+              const areaName =
+                coverageAreas.find((a) => a.id === fireBastionConfigs[i].areaId)
+                  ?.name ?? "Unknown";
+              const epochName =
+                insuranceEpochs.find(
+                  (a) => a.id === fireBastionConfigs[i].epochId
+                )?.name ?? "Unknown";
+              let expireDate = "Unknown";
+              try {
+                expireDate = epochName.split(" - ")[1];
+              } catch (e) {
+                console.log("Unable to parse expire date.");
+              }
+              insurances.push({
+                id: uuidv4(),
+                isActive: true,
+                area: areaName,
+                epoch: epochName,
+                premium: balance,
+                expires: expireDate,
+              });
+            }
+          }
+          setUserInsurancePolicies(insurances);
+        }
+      } catch (e) {
+        console.log("Error loading user's balance of shares.", e);
+      } finally {
+        setLoadingPortfolio(false);
+      }
+    };
+    fetchData();
+    return () => {
+      isMounted = false;
+    };
+  }, [walletAddress]);
 
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -395,46 +467,52 @@ export default function Insurance() {
               </CardHeader>
               <CardContent>
                 {walletAddress ? (
-                  <div className="space-y-4">
-                    {insuranceData.map((policy) => (
-                      <div
-                        key={policy.id}
-                        className={`border rounded-lg p-4 hover:bg-orange-50 dark:hover:text-black transition duration-200 ${
-                          !policy.isActive ? "opacity-70" : ""
-                        }`}
-                      >
-                        <div className="flex justify-between mb-2">
-                          <span className="font-semibold">
-                            Policy #{policy.id}
-                          </span>
-                          <span
-                            className={
-                              policy.isActive
-                                ? "text-green-500 font-medium"
-                                : "text-gray-500 font-medium"
-                            }
-                          >
-                            {policy.isActive ? "Active" : "Expired"}
-                          </span>
+                  loadingPortfolio ? (
+                    <div className="text-center py-8 text-gray-500">
+                      Loading...
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {userInsurancePolicies.map((policy) => (
+                        <div
+                          key={policy.id}
+                          className={`border rounded-lg p-4 hover:bg-orange-50 dark:hover:text-black transition duration-200 ${
+                            !policy.isActive ? "opacity-70" : ""
+                          }`}
+                        >
+                          <div className="flex justify-between mb-2">
+                            <span className="font-semibold">
+                              Policy #{policy.id}
+                            </span>
+                            <span
+                              className={
+                                policy.isActive
+                                  ? "text-green-500 font-medium"
+                                  : "text-gray-500 font-medium"
+                              }
+                            >
+                              {policy.isActive ? "Active" : "Expired"}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                            <div>Area: {policy.area}</div>
+                            <div>Epoch: {policy.epoch}</div>
+                            <div>Premium: {policy.premium} shares of USDC</div>
+                            <div>Expires: {policy.expires}</div>
+                          </div>
+                          <div className="mt-3 flex justify-end">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-gray-600"
+                            >
+                              Exit Policy
+                            </Button>
+                          </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                          <div>Area: {policy.area}</div>
-                          <div>Epoch: {policy.epoch}</div>
-                          <div>Premium: {policy.premium}</div>
-                          <div>Expires: {policy.expires}</div>
-                        </div>
-                        <div className="mt-3 flex justify-end">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-gray-600"
-                          >
-                            Exit Policy
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )
                 ) : (
                   <div className="text-center py-8 text-gray-500">
                     Connect your wallet to view your insurance policies

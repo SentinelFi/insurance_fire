@@ -42,7 +42,22 @@ export async function simulateGetAction(
   operationName: string,
   caller: string
 ): Promise<string | number | bigint | object> {
-  return await simulateTx(caller, contractId, operationName);
+  return await simulateTransactionServer(caller, contractId, operationName);
+}
+
+export async function simulateTotalSharesOf(
+  contractId: string,
+  operationName: string,
+  caller: string,
+  address: string
+): Promise<string | number | bigint | object> {
+  const params = [converter.stringToAddress(address)];
+  return await simulateTransactionServer(
+    caller,
+    contractId,
+    operationName,
+    params
+  );
 }
 
 async function prepareTransactionServer(
@@ -118,7 +133,7 @@ export async function sendTransactionServer(
   return true;
 }
 
-async function simulateTx(
+async function simulateTransactionServer(
   publicKey: string,
   contractId: string,
   operationName: string,

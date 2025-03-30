@@ -3,6 +3,7 @@ import {
   prepareDepositVault,
   sendTransactionServer,
   simulateGetAction,
+  simulateTotalSharesOf,
 } from "@/actions/server";
 
 export async function deposit(
@@ -27,4 +28,17 @@ export async function totalAssets(
   caller: string
 ): Promise<string | number | bigint | object> {
   return await simulateGetAction(vaultAddress, "total_assets", caller);
+}
+
+export async function totalSharesOf(
+  vaultAddress: string,
+  caller: string,
+  address: string
+): Promise<string | number | bigint | object> {
+  return await simulateTotalSharesOf(
+    vaultAddress,
+    "balance_of_shares",
+    caller,
+    address
+  );
 }
