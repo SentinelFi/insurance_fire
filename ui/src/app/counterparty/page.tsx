@@ -85,11 +85,28 @@ export default function Counterparty() {
 
   const handleViewMap = (e: React.MouseEvent) => {
     e.preventDefault();
-    toast({
-      title: "Map View",
-      description: "Risk assessment map view feature is coming soon.",
-      variant: "default",
-    });
+    if (!area) {
+      toast({
+        title: "Map View",
+        description: "Please select area first!",
+        variant: "default",
+      });
+      return;
+    }
+    const areaConfig = coverageAreas.find((a) => a.id === area);
+    if (!areaConfig) {
+      toast({
+        title: "Map View",
+        description: "Unable to find configured area!",
+        variant: "default",
+      });
+      return;
+    }
+    const lat = areaConfig.latitude;
+    const lng = areaConfig.longitude;
+    const zoomLevel = 13; // For a ~5km radius view
+    const mapsUrl = `https://www.google.com/maps/@${lat},${lng},${zoomLevel}z`;
+    window.open(mapsUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleProvideCoverage = async () => {
@@ -210,6 +227,7 @@ export default function Counterparty() {
                     <div className="text-sm mt-1">
                       <Link
                         href="#"
+                        target="_blank"
                         onClick={handleViewMap}
                         className="text-orange-500 hover:underline"
                       >

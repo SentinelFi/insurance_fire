@@ -139,7 +139,14 @@ export const counterpartyData = [
   },
 ];
 
-export const coverageAreas = [{ id: "area1", name: "San Francisco Bay Area" }];
+export const coverageAreas = [
+  {
+    id: "area1",
+    name: "San Francisco Bay Area",
+    latitude: 37.7749,
+    longitude: -122.4194,
+  },
+];
 
 export const insuranceEpochs = [
   { id: "epoch1", name: "March 30, 2025 - April 30, 2025" },
