@@ -33,7 +33,7 @@ export default function Counterparty() {
   const [area, setArea] = useState("");
   const [contractConfig, setContractConfig] =
     useState<FireBastionConfig | null>(null);
-  const [coverageAmount, setCoverageAmount] = useState(1000);
+  const [coverageAmount, setCoverageAmount] = useState(200);
   const [showFireworks, setShowFireworks] = useState(false);
   const [depositing, setDepositing] = useState(false);
 

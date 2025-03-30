@@ -38,6 +38,7 @@ import { useWallet } from "../../context/wallet-context";
 import QRCode from "react-qr-code";
 import { getProofs, start } from "@/actions/reclaim";
 import { FireBastionConfig, fireBastionConfigs } from "@/lib/config";
+import { deposit } from "@/lib/actions";
 
 export default function Insurance() {
   const [epoch, setEpoch] = useState("");
@@ -54,6 +55,7 @@ export default function Insurance() {
   const [requestUrl, setRequestUrl] = useState("");
   const [proofs, setProofs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [depositing, setDepositing] = useState(false);
   const [contractConfig, setContractConfig] =
     useState<FireBastionConfig | null>(null);
 
@@ -146,23 +148,58 @@ export default function Insurance() {
   };
 
   const handlePurchase = async () => {
-    setShowPolicyDialog(false);
+    try {
+      setShowPolicyDialog(false);
+      setDepositing(true);
 
-    if (!contractConfig) {
+      if (!contractConfig) {
+        toast({
+          title: "Failed",
+          description: "Unable to find configured insurance!",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!walletAddress) {
+        toast({
+          title: "Wallet Error",
+          description: "Wallet not connected!",
+          variant: "destructive",
+        });
+        return;
+      }
+      const deposited = await deposit(
+        contractConfig.hedgeContactAddress,
+        walletAddress,
+        walletAddress,
+        BigInt(premium)
+      );
+      if (deposited) {
+        setShowFireworks(true);
+        toast({
+          title: "Success",
+          description: "Insurance purchased successfully!",
+          variant: "default",
+        });
+      } else {
+        console.log("Deposit returned false.");
+        toast({
+          title: "Failed",
+          description: "Something went wrong! Check console for details.",
+          variant: "default",
+        });
+      }
+    } catch (e) {
+      console.log("Deposit error:", e);
       toast({
         title: "Failed",
-        description: "Unable to find configured insurance!",
-        variant: "destructive",
+        description: "Something went wrong! Check console for details.",
+        variant: "default",
       });
-      return;
+    } finally {
+      setDepositing(false);
     }
-
-    setShowFireworks(true);
-    toast({
-      title: "Success",
-      description: "Insurance purchased successfully!",
-      variant: "default",
-    });
   };
 
   return (
@@ -295,10 +332,14 @@ export default function Insurance() {
                   <div className="pt-4">
                     <Button
                       onClick={handleStartPurchase}
-                      disabled={loading}
+                      disabled={loading || depositing}
                       className="w-full bg-orange-500 hover:bg-orange-600"
                     >
-                      {loading ? "Loading..." : "Start Purchase Process"}
+                      {loading
+                        ? "Loading..."
+                        : depositing
+                        ? "Processing..."
+                        : "Start Purchase Process"}
                     </Button>
                   </div>
                 </CardContent>
