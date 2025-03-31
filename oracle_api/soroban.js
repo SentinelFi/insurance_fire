@@ -5,7 +5,7 @@ import { Server } from "@stellar/stellar-sdk/rpc";
 const rpcUrl = "https://soroban-testnet.stellar.org";
 const networkPassphrase = "Test SDF Network ; September 2015";
 const wasmHash =
-  "bd3c43038d51193306a0d09fff37701a71650ea4efb16b84009241b8dc369ffc"; // Obtain after deploying vault contract
+  "bd3c43038d51193306a0d09fff37701a71650ea4efb16b84009241b8dc369ffc"; // Obtain after deploying market contract
 const contractID = "CCOLNNMHQQEVYLFFKMMOQIZP4ARCJB4DDS23RTLV2YHAJO6MYXUCI7BB"; // E.g. Market contract address
 const evenUnixTimestamp = 1743403241; // https://www.unixtimestamp.com/
 const eventOccurred = true;
@@ -21,7 +21,7 @@ async function generateFundedKeypair() {
 }
 
 /**
- * Generate a soroban contract function
+ * Call a soroban contract function
  */
 export async function callMarketBump() {
   console.log("Test wallet funding from faucet.");
