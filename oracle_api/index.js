@@ -106,8 +106,8 @@ async function geocodeAddress(address) {
  */
 async function checkForWildfires(lat, lon) {
   try {
-    // Create a bounding box around the point (±0.05 degrees, ~5km radius)
-    const boxSize = 0.05;
+    // Create a bounding box around the point (±0.1 degrees, ~10km radius)
+    const boxSize = 0.1;
     const boundingBox = {
       minLat: lat - boxSize,
       maxLat: lat + boxSize,
@@ -219,14 +219,22 @@ async function checkLocationForWildfires(address) {
   }
 }
 
-// Get address from command line argument
-const address = process.argv[2];
+// Export functions for use in other files
+export { checkLocationForWildfires };
 
-if (!address) {
-  console.error("Please provide an address as a command line argument.");
-  console.error('Usage: node index.js "123 Main St, City, State, Zip"');
-  process.exit(1);
+// Run the script if called directly
+// Check if file is run directly (not imported)
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+
+if (isMainModule) {
+  // Get address from command line argument
+  const address = process.argv[2];
+
+  if (!address) {
+    console.error("Please provide an address as a command line argument.");
+    console.error('Usage: node index.js "123 Main St, City, State, Zip"');
+    process.exit(1);
+  }
+  
+  checkLocationForWildfires(address);
 }
-
-// Run the script
-checkLocationForWildfires(address);
