@@ -16,6 +16,7 @@
     "location"
   ],
   "dependencies": {
+    "@stellar/stellar-sdk": "^13.1.0",
     "axios": "^1.8.4",
     "dotenv": "^16.4.7",
     "node-cron": "^3.0.3"

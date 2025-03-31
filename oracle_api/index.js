@@ -235,6 +235,6 @@ if (isMainModule) {
     console.error('Usage: node index.js "123 Main St, City, State, Zip"');
     process.exit(1);
   }
-  
+
   checkLocationForWildfires(address);
 }
